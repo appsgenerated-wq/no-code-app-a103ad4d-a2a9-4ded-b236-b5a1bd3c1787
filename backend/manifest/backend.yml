@@ -1,0 +1,38 @@
+name: FlavorFind
+description: A platform to discover and share amazing recipes.
+
+entities:
+  User:
+    authenticable: true
+    properties:
+      - { name: name, validation: { required: true } }
+      - { name: email, type: email, validation: { required: true, unique: true } }
+      - { name: avatar, type: image, options: { sizes: { thumbnail: { width: 100, height: 100 } } } }
+      - { name: role, type: choice, options: { values: [admin, user], default: user } }
+    access_policies:
+      - role: admin
+        permissions: [create, read, update, delete]
+      - role: user
+        permissions: [read, update]
+        condition: "user.id === id"
+
+  Recipe:
+    properties:
+      - { name: title, validation: { required: true } }
+      - { name: description, type: text, validation: { required: true } }
+      - { name: ingredients, type: array }
+      - { name: instructions, type: text, validation: { required: true } }
+      - { name: prepTime, type: number, validation: { required: true, min: 1 }, options: { label: 'Prep Time (mins)' } }
+      - { name: cookTime, type: number, validation: { required: true, min: 1 }, options: { label: 'Cook Time (mins)' } }
+      - { name: image, type: image, options: { sizes: { large: { width: 800, height: 600 }, thumbnail: { width: 400, height: 300 } } } }
+      - { name: status, type: choice, options: { values: [draft, published], default: published } }
+    belongsTo:
+      - { name: owner, entity: User }
+    access_policies:
+      - role: admin
+        permissions: [create, read, update, delete]
+      - role: user
+        permissions: [create, read]
+      - role: user
+        permissions: [update, delete]
+        condition: "user.id === owner.id"
